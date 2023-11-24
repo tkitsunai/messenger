@@ -3,8 +3,8 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/tkitsunai/messenger/core"
 	"io"
-	"message/core"
 	"net"
 )
 
