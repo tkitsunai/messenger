@@ -3,7 +3,7 @@ package commands
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"message/server"
+	"github.com/tkitsunai/messenger/server"
 	"os"
 )
 

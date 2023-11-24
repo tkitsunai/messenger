@@ -1,7 +1,7 @@
 package main
 
 import (
-	"message/commands"
+	"github.com/tkitsunai/messenger/commands"
 )
 
 func main() {
