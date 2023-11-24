@@ -1,3 +1,5 @@
+[![build](https://github.com/tkitsunai/messenger/actions/workflows/go-build.yml/badge.svg?branch=master)](https://github.com/tkitsunai/messenger/actions/workflows/go-build.yml)
+
 # Messenger
 
 Messenger is a simple pub/sub based on the idea that messages are tagged.
