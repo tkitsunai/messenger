@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/tkitsunai/messenger/commands"
+	"github.com/tkitsunai/messenger/cmd"
 )
 
 func main() {
-	commands.Execute()
+	cmd.Execute()
 }

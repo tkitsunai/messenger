@@ -1,10 +1,17 @@
 [![build](https://github.com/tkitsunai/messenger/actions/workflows/go-build.yml/badge.svg?branch=master)](https://github.com/tkitsunai/messenger/actions/workflows/go-build.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/tkitsunai/messenger)](https://goreportcard.com/report/github.com/tkitsunai/messenger)
 
 # Messenger
 
 Messenger is a simple pub/sub based on the idea that messages are tagged.
 
 The server and client exchange messages using a TCP connection and a JSON encoder/decoder.
+
+## Install
+
+```bash
+go install github.com/tkitsunai/messenger
+```
 
 ## Short-Term Roadmap
 

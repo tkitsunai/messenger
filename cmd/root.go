@@ -1,9 +1,10 @@
-package commands
+package cmd
 
 import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/tkitsunai/messenger/server"
+	"github.com/tkitsunai/messenger/utils"
 	"os"
 )
 
@@ -23,7 +24,7 @@ func init() {
 func start(cmd *cobra.Command, args []string) error {
 	tcpServer := server.NewTcpServer()
 	errChan := make(chan error)
-	go tcpServer.StartHandler(":1234", errChan)
+	go tcpServer.StartHandler(fmt.Sprintf(":%s", utils.GetConfig().Port), errChan)
 
 	err := <-errChan
 	if err != nil {

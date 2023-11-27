@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/tkitsunai/messenger/core"
+	"github.com/tkitsunai/messenger/utils"
 	"io"
 	"net"
 )
@@ -20,6 +21,8 @@ func NewTcpServer() *TcpServer {
 }
 
 func StartTcp(uri string, errCh chan<- error) {
+	utils.GetLogger().Info().Msg("welcome to messenger")
+
 	ln, err := net.Listen("tcp", uri)
 
 	if err != nil {
@@ -60,31 +63,33 @@ func handleConnection(conn net.Conn, errCh chan<- error) {
 		if err := decoder.Decode(&msg); err != nil {
 			switch {
 			case err == io.EOF:
+				// disconnected?
 			case errors.Is(err, io.ErrUnexpectedEOF):
 			default:
 				errCh <- fmt.Errorf("failed to decode message from client %s", err.Error())
 			}
-			fmt.Println("error decode!")
 			return
 		}
 
 		handler, found := handlers[msg.Command]
 		if !found {
-			encoder.Encode(core.Message{
+			err := encoder.Encode(core.Message{
 				Error: "Unknown Command",
 			})
-			fmt.Println("commands not found")
+			if err != nil {
+				utils.GetLogger().Error().Msg(fmt.Sprintf("failed encoded: %s", err))
+			}
 			continue
 		}
 
-		err := handler(broker, msg)
-
-		if err != nil {
-			encoder.Encode(core.Message{
+		if err := handler(broker, msg); err != nil {
+			err := encoder.Encode(core.Message{
 				Command: msg.Command,
 				Error:   err.Error(),
 			})
-			fmt.Println("error handler")
+			if err != nil {
+				utils.GetLogger().Error().Msg(fmt.Sprintf("failed encoded: %s", err))
+			}
 			continue
 		}
 	}
