@@ -18,16 +18,16 @@ var (
 
 type Subscribers struct {
 	sync.RWMutex
-	brokers map[BrokerId]*Broker
+	brokers map[BrokerId]*MemoryBroker
 }
 
 func NewSubscribers() *Subscribers {
 	return &Subscribers{
-		brokers: make(map[BrokerId]*Broker),
+		brokers: make(map[BrokerId]*MemoryBroker),
 	}
 }
 
-func (s *Subscribers) Add(broker *Broker) {
+func (s *Subscribers) Add(broker *MemoryBroker) {
 	s.Lock()
 	defer s.Unlock()
 	s.brokers[broker.id] = broker
@@ -39,12 +39,12 @@ func (s *Subscribers) Unsubscribe(brokerId BrokerId) {
 	delete(s.brokers, brokerId)
 }
 
-func (s *Subscribers) Brokers(selfSubscribeMode bool, brokerId BrokerId) []*Broker {
+func (s *Subscribers) Brokers(selfSubscribeMode bool, brokerId BrokerId) []*MemoryBroker {
 	lens := len(s.brokers)
 	if !selfSubscribeMode {
 		lens = lens - 1
 	}
-	brokers := make([]*Broker, 0, lens)
+	brokers := make([]*MemoryBroker, 0, lens)
 	for _, broker := range s.brokers {
 		if !selfSubscribeMode && brokerId == broker.id {
 			continue
@@ -61,7 +61,7 @@ type Message struct {
 	Error    string   `json:"error,omitempty"`
 }
 
-type HandlerFn func(*Broker, Message) error
+type HandlerFn func(*MemoryBroker, Message) error
 type ServerStartHandler func(port string, errCh chan<- error)
 
 type subscriptions interface {
@@ -70,11 +70,11 @@ type subscriptions interface {
 	Match([]string) bool
 }
 
-func subscribe(broker *Broker) {
+func subscribe(broker *MemoryBroker) {
 	subscribers.Add(broker)
 }
 
-func unsubscribe(broker *Broker) {
+func unsubscribe(broker *MemoryBroker) {
 	subscribers.Unsubscribe(broker.id)
 }
 
@@ -93,7 +93,7 @@ func publish(bId BrokerId, subjects []string, payload string) error {
 				Subjects: subjects,
 				Payload:  payload,
 			}
-			go func(b *Broker, msg Message) {
+			go func(b *MemoryBroker, msg Message) {
 				b.check <- msg
 			}(broker, msg)
 		}

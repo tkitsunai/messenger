@@ -7,7 +7,12 @@ import (
 
 type BrokerId uint32
 
-type Broker struct {
+type Broker interface {
+	Publish([]string, string) error
+	Subscribe([]string) error
+}
+
+type MemoryBroker struct {
 	sync.RWMutex
 	subscriptions subscriptions
 	Pipe          chan Message
@@ -15,26 +20,26 @@ type Broker struct {
 	id            BrokerId
 }
 
-func NewBroker() *Broker {
-	broker := &Broker{
+func NewBroker() *MemoryBroker {
+	broker := &MemoryBroker{
 		Pipe:          make(chan Message),
 		check:         make(chan Message),
-		subscriptions: newNode(),
+		subscriptions: newSubjectNode(),
 		id:            BrokerId(atomic.AddUint32(&uid, 1)),
 	}
 	go broker.connect()
 	return broker
 }
 
-func (b *Broker) connect() {
+func (b *MemoryBroker) connect() {
 	go b.handleMessages()
 }
 
-func (b *Broker) Close() {
+func (b *MemoryBroker) Close() {
 	unsubscribe(b)
 }
 
-func (b *Broker) handleMessages() {
+func (b *MemoryBroker) handleMessages() {
 	defer func() {
 		close(b.Pipe)
 		close(b.check)
@@ -50,11 +55,11 @@ func (b *Broker) handleMessages() {
 	}
 }
 
-func (b *Broker) Publish(tags []string, data string) error {
+func (b *MemoryBroker) Publish(tags []string, data string) error {
 	return publish(b.id, tags, data)
 }
 
-func (b *Broker) Subscribe(subjects []string) error {
+func (b *MemoryBroker) Subscribe(subjects []string) error {
 	b.Lock()
 	defer b.Unlock()
 	if len(subjects) == 0 {
@@ -65,7 +70,7 @@ func (b *Broker) Subscribe(subjects []string) error {
 	return nil
 }
 
-func (b *Broker) UnSubscribe(subjects []string) error {
+func (b *MemoryBroker) UnSubscribe(subjects []string) error {
 	b.Lock()
 	defer b.Unlock()
 	b.subscriptions.Remove(subjects)

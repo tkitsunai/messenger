@@ -103,14 +103,14 @@ func getAllCommandHandlers() map[string]core.HandlerFn {
 	}
 }
 
-func handleSubscribe(broker *core.Broker, msg core.Message) error {
+func handleSubscribe(broker *core.MemoryBroker, msg core.Message) error {
 	return broker.Subscribe(msg.Subjects)
 }
 
-func handleUnSubscribe(broker *core.Broker, msg core.Message) error {
+func handleUnSubscribe(broker *core.MemoryBroker, msg core.Message) error {
 	return broker.UnSubscribe(msg.Subjects)
 }
 
-func handlePublish(broker *core.Broker, msg core.Message) error {
+func handlePublish(broker *core.MemoryBroker, msg core.Message) error {
 	return broker.Publish(msg.Subjects, msg.Payload)
 }
